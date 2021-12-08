@@ -1,8 +1,9 @@
-export interface ISenderAPIData {
+export type SenderAPIData = {
+	to: string;
 	code: string;
 	name: string;
-}
+};
 
-export interface ISenderAPI<T extends ISenderAPIData> {
-	send: (data: any) => Promise<void>;
+export interface ISenderAPI {
+	send: (data: SenderAPIData) => Promise<void>;
 }

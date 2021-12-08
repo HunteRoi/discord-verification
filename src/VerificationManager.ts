@@ -8,17 +8,13 @@ import {
 	IStoringSystem,
 	IUser,
 	UserStatus,
-	ISenderAPIData,
 } from './types';
 import { VerificationManagerEvents } from './VerificationManagerEvents';
 
-export class VerificationManager<
-	TUser extends IUser,
-	TSenderAPIData extends ISenderAPIData
-> extends EventEmitter {
+export class VerificationManager<TUser extends IUser> extends EventEmitter {
 	private readonly options: VerificationOptions<TUser>;
 	private readonly storingSystem: IStoringSystem<TUser>;
-	private readonly senderAPI: ISenderAPI<TSenderAPIData>;
+	private readonly senderAPI: ISenderAPI;
 	private readonly codeGenerator: CodeGeneratorService;
 
 	public readonly client: Client;
@@ -26,7 +22,7 @@ export class VerificationManager<
 	constructor(
 		client: Client,
 		storingSystem: IStoringSystem<TUser>,
-		senderAPI: ISenderAPI<TSenderAPIData>,
+		senderAPI: ISenderAPI,
 		options: VerificationOptions<TUser> = {
 			useInteraction: true,
 			codeGenerationOptions: {
@@ -142,8 +138,8 @@ export class VerificationManager<
 			this.emit(VerificationManagerEvents.storingSystemCall);
 
 			await this.senderAPI.send({
-				toEmail: data,
-				username: user.username,
+				to: data,
+				name: user.username,
 				code,
 			});
 			this.emit(VerificationManagerEvents.senderCall);
@@ -154,8 +150,8 @@ export class VerificationManager<
 			user.nbCodeCalled++;
 			if (user.nbCodeCalled % this.options.maxNbCodeCalledBeforeResend === 0) {
 				await this.senderAPI.send({
-					toEmail: user.data,
-					username: user.username,
+					to: user.data,
+					name: user.username,
 					code: user.code,
 				});
 				this.emit(VerificationManagerEvents.senderCall);

@@ -1,19 +1,13 @@
 import { MailDataRequired, MailService } from '@sendgrid/mail';
 
-import { ISenderAPI, ISenderAPIData } from '../types';
-
-interface SendGridData extends ISenderAPIData {
-	toEmail: string;
-	username: string;
-	code: string;
-}
+import { ISenderAPI, SenderAPIData } from '../types';
 
 type SendGridOptions = {
 	apiKey: string;
 	mailData: MailDataRequired;
 };
 
-export class SendGridService implements ISenderAPI<SendGridData> {
+export class SendGridService implements ISenderAPI {
 	private readonly options: SendGridOptions;
 	private readonly mailService: MailService;
 
@@ -28,15 +22,15 @@ export class SendGridService implements ISenderAPI<SendGridData> {
 		this.mailService.setApiKey(this.options.apiKey);
 	}
 
-	async send({ toEmail, username, code }: SendGridData) {
+	async send({ to, name, code }: SenderAPIData) {
 		const message = {
 			...this.options.mailData,
-			to: toEmail,
+			to,
 		} as MailDataRequired;
 
 		if (this.options.mailData.templateId) {
 			message.templateId = this.options.mailData.templateId;
-			message.dynamicTemplateData = { code, name: username };
+			message.dynamicTemplateData = { code, name };
 		}
 
 		try {
