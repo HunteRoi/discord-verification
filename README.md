@@ -89,7 +89,7 @@ In case you are willing to a JSON file as database, you need to comply to certai
 
 If you are willing to use your own services, you need to know a few things. First things first, the services should implement the right interface:
 
-- the "sender" service should implement [`ISenderAPI<T extends ISenderAPIData>`](/src/types/SenderAPI.ts).
+- the "sender" service should implement [`ISenderAPI`](/src/types/SenderAPI.ts).
 - the "database" service should implement [`IStoringSystem<T extends IUser>`](/src/types/StoringSystem.ts).
 
 If you need examples, take a look at [`SendGridService`](/src/services/SendGridService.ts) and [`JSONDatabaseService`](/src/services/JSONDatabaseService.ts).
