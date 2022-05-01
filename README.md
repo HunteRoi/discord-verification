@@ -9,7 +9,7 @@ A framework to integrate a verification system with your Discord guild built wit
 - Emits events like `codeCreate`, `userCreate`, `senderCall` and **3 more**!
 - And much more!
 
-![IMAGE](assets/example.gif)
+![IMAGE](./assets/example.gif)
 
 See [./example/index.js](example/index.js).
 
