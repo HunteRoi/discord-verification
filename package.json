@@ -9,7 +9,7 @@
     "lint": "tslint -p tsconfig.json",
     "example": "yarn run build & node ./example/index.js"
   },
-  "repository": "git//github.com/hunteroi/discord-verification.git",
+  "repository": "git://github.com/hunteroi/discord-verification.git",
   "keywords": [
     "verification",
     "discordjs",
