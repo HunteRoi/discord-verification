@@ -11,7 +11,7 @@ A framework to integrate a verification system with your Discord guild built wit
 
 ![IMAGE](./assets/example.gif)
 
-See [./example/index.js](example/index.js).
+See [./example/index.js](./example/index.js).
 
 ## Installation
 
