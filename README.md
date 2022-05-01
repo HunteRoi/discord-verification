@@ -100,8 +100,8 @@ If you need examples, take a look at [`SendGridService`](/src/services/SendGridS
 ```ts
 manager.on(VerificationManagerEvents.codeCreate, (code) => {});
 manager.on(
-	VerificationManagerEvents.codeVerify,
-	(user, userid, code, isVerified) => {}
+  VerificationManagerEvents.codeVerify,
+  (user, userid, code, isVerified) => {}
 );
 manager.on(VerificationManagerEvents.userCreate, (user) => {});
 manager.on(VerificationManagerEvents.userAwait, (user) => {});

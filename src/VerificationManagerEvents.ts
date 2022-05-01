@@ -1,10 +1,10 @@
 export enum VerificationManagerEvents {
-	codeCreate = 'codeCreate',
-	codeVerify = 'codeVerify',
+  codeCreate = 'codeCreate',
+  codeVerify = 'codeVerify',
 
-	userCreate = 'userCreate',
-	userAwait = 'userAwait',
+  userCreate = 'userCreate',
+  userAwait = 'userAwait',
 
-	senderCall = 'senderCall',
-	storingSystemCall = 'storingSystemCall',
+  senderCall = 'senderCall',
+  storingSystemCall = 'storingSystemCall',
 }

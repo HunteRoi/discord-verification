@@ -1,24 +1,24 @@
 import { IUser } from '.';
 
 export interface VerificationOptions<TUser extends IUser> {
-	useInteraction: boolean;
+  useInteraction: boolean;
 
-	usePrivateMessages?: boolean;
+  usePrivateMessages?: boolean;
 
-	codeGenerationOptions: {
-		charactersWhitelist?: string;
-		length: number;
-	};
+  codeGenerationOptions: {
+    charactersWhitelist?: string;
+    length: number;
+  };
 
-	maxNbCodeCalledBeforeResend: number;
+  maxNbCodeCalledBeforeResend: number;
 
-	pendingMessage: (user: TUser) => string;
+  pendingMessage: (user: TUser) => string;
 
-	alreadyPendingMessage: (user: TUser) => string;
+  alreadyPendingMessage: (user: TUser) => string;
 
-	alreadyActiveMessage: (user: TUser) => string;
+  alreadyActiveMessage: (user: TUser) => string;
 
-	validCodeMessage: (user: TUser) => string;
+  validCodeMessage: (user: TUser) => string;
 
-	invalidCodeMessage: (user: TUser, invalidCode: string) => string;
+  invalidCodeMessage: (user: TUser, invalidCode: string) => string;
 }

@@ -1,53 +1,48 @@
 {
-	"name": "@hunteroi/discord-verification",
-	"version": "1.0.1",
-	"description": "A framework to integrate a verification system with your Discord guild built with DiscordJS",
-	"main": "lib/index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc",
-		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\" --tab-width 4",
-		"lint": "tslint -p tsconfig.json",
-		"prepare": "yarn run build",
-		"example": "yarn run build & node ./example/index.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/hunteroi/discord-verification.git"
-	},
-	"keywords": [
-		"verification",
-		"discordjs",
-		"authentication"
-	],
-	"author": "HunteRoi <me@tinaeldevresse.eu> (https://tinaeldevresse.eu/)",
-	"funding": "https://github.com/sponsors/hunteroi",
-	"engines": {
-	  "node": ">=16.6.0"
-	},
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/hunteroi/discord-verification/issues"
-	},
-	"homepage": "https://github.com/hunteroi/discord-verification#readme",
-	"dependencies": {
-		"@sendgrid/mail": "^7.6.0",
-		"discord.js": "^13.2.0"
-	},
-	"devDependencies": {
-		"@types/node": "^16.11.1",
-		"@types/node-json-db": "^0.9.3",
-		"@types/sqlite3": "^3.1.7",
-		"discord-sync-commands": "^0.3.0",
-		"node-json-db": "^1.4.1",
-		"tslint": "^6.1.0",
-		"tslint-config-prettier": "^1.18.0",
-		"typescript": "^4.4.4"
-	},
-	"directories": {
-		"lib": "lib"
-	},
-	"files": [
-		"lib/**/*"
-	]
+  "name": "@hunteroi/discord-verification",
+  "version": "1.0.2",
+  "description": "A framework to integrate a verification system with your Discord guild built with DiscordJS",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "format": "npx prettier --write \"src/**/*.ts\" \"src/**/*.js\" \"example/**/*.ts\" \"example/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "example": "yarn run build & node ./example/index.js"
+  },
+  "repository": "git//github.com/hunteroi/discord-verification.git",
+  "keywords": [
+    "verification",
+    "discordjs",
+    "authentication"
+  ],
+  "author": "HunteRoi <me@tinaeldevresse.eu> (https://tinaeldevresse.eu/)",
+  "funding": "https://github.com/sponsors/hunteroi",
+  "engines": {
+    "node": ">=16.6.0"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hunteroi/discord-verification/issues"
+  },
+  "homepage": "https://github.com/hunteroi/discord-verification#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^7.6.0",
+    "discord.js": "^13.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.1",
+    "@types/node-json-db": "^0.9.3",
+    "@types/sqlite3": "^3.1.7",
+    "discord-sync-commands": "^0.3.0",
+    "node-json-db": "^1.4.1",
+    "tslint": "^6.1.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^4.4.4"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib/**/*"
+  ]
 }
