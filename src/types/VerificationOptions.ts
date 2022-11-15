@@ -1,10 +1,6 @@
 import { IUser } from '.';
 
 export interface VerificationOptions<TUser extends IUser> {
-  useInteraction: boolean;
-
-  usePrivateMessages?: boolean;
-
   codeGenerationOptions: {
     charactersWhitelist?: string;
     length: number;

@@ -12,10 +12,8 @@ const {
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.DirectMessages,
     IntentsBitField.Flags.GuildMessages,
-  ],
-  partials: [Partials.Message],
+  ]
 });
 synchronizeSlashCommands(
   client,

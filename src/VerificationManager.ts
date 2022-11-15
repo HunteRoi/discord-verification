@@ -1,4 +1,4 @@
-import { Client, IntentsBitField, Snowflake, Partials } from 'discord.js';
+import { Client, Snowflake } from 'discord.js';
 import EventEmitter from 'events';
 
 import { CodeGeneratorService } from './services';
@@ -24,7 +24,6 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     storingSystem: IStoringSystem<TUser>,
     senderAPI: ISenderAPI,
     options: VerificationOptions<TUser> = {
-      useInteraction: true,
       codeGenerationOptions: {
         length: 6,
       },
@@ -47,27 +46,6 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     if (!storingSystem) throw 'StoringSystem is required';
     if (!senderAPI) throw 'SenderAPI is required';
     this.validateOptions(options);
-
-    const intents = new IntentsBitField(client.options.intents);
-    if (!intents.has(IntentsBitField.Flags.Guilds)) {
-      throw 'GUILDS intent is required to use this package!';
-    }
-
-    if (options.usePrivateMessages) {
-      if (!intents.has(IntentsBitField.Flags.DirectMessages)) {
-        throw 'DIRECT_MESSAGES intent is required to use this package!';
-      }
-      if (
-        !this.client.options.partials.includes(Partials.Message)
-      ) {
-        throw 'MESSAGE partial is required to use this package with DM!';
-      }
-    } else if (
-      !options.useInteraction &&
-      !intents.has(IntentsBitField.Flags.GuildMessages)
-    ) {
-      throw 'GUILD_MESSAGES intent is required to use this package!';
-    }
 
     this.client = client;
     this.options = options;
