@@ -94,7 +94,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       options.alreadyPendingMessage = (user: TUser) => `You already have a verification code pending! It was sent to ${user.data}.`;
     }
     if (!options.alreadyActiveMessage) {
-      options.alreadyActiveMessage = (user: TUser) => `You are already verified with the email ${user.data}!`;
+      options.alreadyActiveMessage = (user: TUser) => `An account is already verified with this data!`;
     }
     if (!options.validCodeMessage) {
       options.validCodeMessage = (user: TUser, validCode: string) => `Your code ${validCode} is valid! Welcome ${user.username}!`;
@@ -105,7 +105,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
   }
 
   async sendCode(userid: Snowflake, data: any): Promise<string> {
-    let user: TUser = await this.storingSystem.read(userid);
+    let user: TUser = (await this.storingSystem.read(userid)) ?? (await this.storingSystem.readBy((user: TUser) => user.data === data));
     this.emit(VerificationManagerEvents.storingSystemCall);
 
     if (!user) {
@@ -138,7 +138,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
 
       this.emit(VerificationManagerEvents.userAwait, user);
       return this.options.pendingMessage(user);
-    } else if (user && user.status === UserStatus.pending) {
+    } else if (user && user.userid === userid && user.status === UserStatus.pending) {
       user.nbCodeCalled++;
       if (user.nbCodeCalled % this.options.maxNbCodeCalledBeforeResend === 0) {
         await this.senderAPI.send({

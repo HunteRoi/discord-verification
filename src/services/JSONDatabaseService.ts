@@ -6,24 +6,30 @@ import { IStoringSystem, IUser } from '../types';
 type UserModel = IUser;
 
 export class JSONDatabaseService implements IStoringSystem<UserModel> {
-  private readonly database: JsonDB;
+  readonly #database: JsonDB;
+  readonly #rootPath: string;
 
   constructor(filePath: string) {
-    this.database = new JsonDB(new Config(filePath, true, true, '/'));
+    this.#rootPath = '/users';
+    this.#database = new JsonDB(new Config(filePath, true, true, '/'));
   }
 
   init() {
-    if (!this.database.exists('/users')) {
-      this.database.push('/users', []);
+    if (!this.#database.exists(this.#rootPath)) {
+      this.#database.push(this.#rootPath, []);
     }
   }
 
   read(userid: Snowflake): Promise<UserModel> {
-    return this.database.find<UserModel>('/users', (user: UserModel) => user.userid === userid);
+    return this.#database.find<UserModel>(this.#rootPath, (user: UserModel) => user.userid === userid);
+  }
+
+  readBy(callback: (user: IUser, index: number | string) => boolean): Promise<UserModel> {
+    return this.#database.find<UserModel>(this.#rootPath, callback);
   }
 
   async write(user: UserModel): Promise<void> {
-    const index = await this.database.getIndex('/users', user.userid, 'userid');
-    await this.database.push(`/users[${index !== -1 ? index.toString() : ''}]`, user, true);
+    const index = await this.#database.getIndex(this.#rootPath, user.userid, 'userid');
+    await this.#database.push(`${this.#rootPath}[${index !== -1 ? index.toString() : ''}]`, user, true);
   }
 }

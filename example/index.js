@@ -62,7 +62,7 @@ const manager = new VerificationManager(client, db, sgMail,
     alreadyPendingMessage: (user) =>
       `You already have a verification code pending! It was sent to ${user.data}.`,
     alreadyActiveMessage: (user) =>
-      `You are already verified with the email ${user.data}!`,
+      `An account is already verified with this data!`,
     validCodeMessage: (user, validCode) =>
       `Your code ${validCode} is valid! Welcome ${user.username}!`,
     invalidCodeMessage: (user, invalidCode) =>
