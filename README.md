@@ -6,7 +6,7 @@
 A framework to integrate a verification system with your Discord guild built with DiscordJS.
 
 - Integrates SendGrid by default
-- Emits events like `codeCreate`, `userCreate`, `senderCall` and **3 more**!
+- Emits events like `codeCreate`, `userCreate`, `senderCall` and **4 more**!
 - And much more!
 
 ![IMAGE](./assets/example.gif)
@@ -105,6 +105,7 @@ manager.on(
 );
 manager.on(VerificationManagerEvents.userCreate, (user) => {});
 manager.on(VerificationManagerEvents.userAwait, (user) => {});
+manager.on(VerificationManagerEvents.userActive, (user) => {});
 manager.on(VerificationManager.senderCall, () => {});
 manager.on(VerificationManagerEvents.storingSystemCall, () => {});
 ```
