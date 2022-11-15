@@ -1,5 +1,4 @@
-const { Client, Intents, Constants } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Client, IntentsBitField, Partials, SlashCommandBuilder } = require('discord.js');
 const synchronizeSlashCommands = require('discord-sync-commands');
 const { join } = require('path');
 
@@ -12,11 +11,11 @@ const {
 
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.DIRECT_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGES,
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.DirectMessages,
+    IntentsBitField.Flags.GuildMessages,
   ],
-  partials: [Constants.PartialTypes.MESSAGE],
+  partials: [Partials.Message],
 });
 synchronizeSlashCommands(
   client,
@@ -56,7 +55,19 @@ const sgMail = new SendGridService({
   },
 });
 
-const manager = new VerificationManager(client, db, sgMail);
+const manager = new VerificationManager(client, db, sgMail,
+  {
+    pendingMessage: (user) =>
+      `The verification code has just been sent to ${user.data}.`,
+    alreadyPendingMessage: (user) =>
+      `You already have a verification code pending! It was sent to ${user.data}.`,
+    alreadyActiveMessage: (user) =>
+      `You are already verified with the email ${user.data}!`,
+    validCodeMessage: (user, validCode) =>
+      `Your code ${validCode} is valid! Welcome ${user.username}!`,
+    invalidCodeMessage: (user, invalidCode) =>
+      `Your code ${invalidCode} is invalid!`,
+  });
 
 client.once('ready', () => {
   console.log('Connected!');
@@ -96,16 +107,19 @@ manager.on(
   VerificationManagerEvents.codeVerify,
   (user, userid, code, isVerified) =>
     console.log(
-      `A user (${userid}) has ${
+      `The user ${user?.username} (${userid}) has ${
         isVerified ? 'successfully verified' : 'unsuccessfully tried to verify'
       } the code ${code}.`
     )
 );
 manager.on(VerificationManagerEvents.userCreate, (user) =>
-  console.log('A user has just been created!')
+  console.log(`The user ${user?.username} has just been created!`)
 );
 manager.on(VerificationManagerEvents.userAwait, (user) =>
-  console.log('A user is waiting to verify their code!')
+  console.log(`The user ${user?.username} is waiting to verify their code!`)
+);
+manager.on(VerificationManagerEvents.userActive, (user) =>
+  console.log(`The user ${user?.username} is already active!`)
 );
 manager.on(VerificationManagerEvents.senderCall, () =>
   console.log('Sender API called!')

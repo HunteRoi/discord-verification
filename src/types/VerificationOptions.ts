@@ -18,7 +18,7 @@ export interface VerificationOptions<TUser extends IUser> {
 
   alreadyActiveMessage: (user: TUser) => string;
 
-  validCodeMessage: (user: TUser) => string;
+  validCodeMessage: (user: TUser, validCode: string) => string;
 
   invalidCodeMessage: (user: TUser, invalidCode: string) => string;
 }

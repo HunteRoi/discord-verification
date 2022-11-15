@@ -1,13 +1,15 @@
 import { Snowflake } from 'discord.js';
-import { JsonDB } from 'node-json-db';
+import { Config, JsonDB } from 'node-json-db';
 
 import { IStoringSystem, IUser } from '../types';
 
-export class JSONDatabaseService implements IStoringSystem<IUser> {
+type UserModel = IUser;
+
+export class JSONDatabaseService implements IStoringSystem<UserModel> {
   private readonly database: JsonDB;
 
   constructor(filePath: string) {
-    this.database = new JsonDB(filePath, true, true, '/');
+    this.database = new JsonDB(new Config(filePath, true, true, '/'));
   }
 
   init() {
@@ -16,20 +18,12 @@ export class JSONDatabaseService implements IStoringSystem<IUser> {
     }
   }
 
-  async read(userid: Snowflake): Promise<IUser> {
-    const user = this.database.find<IUser>(
-      '/users',
-      (user: IUser) => user.userid === userid
-    );
-    return new Promise((resolve, reject) => resolve(user));
+  read(userid: Snowflake): Promise<UserModel> {
+    return this.database.find<UserModel>('/users', (user: UserModel) => user.userid === userid);
   }
 
-  async write(user: IUser) {
-    const index = this.database.getIndex('/users', user.userid, 'userid');
-    this.database.push(
-      `/users[${index !== -1 ? index.toString() : ''}]`,
-      user,
-      true
-    );
+  async write(user: UserModel): Promise<void> {
+    const index = await this.database.getIndex('/users', user.userid, 'userid');
+    await this.database.push(`/users[${index !== -1 ? index.toString() : ''}]`, user, true);
   }
 }

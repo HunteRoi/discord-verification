@@ -4,6 +4,7 @@ export enum VerificationManagerEvents {
 
   userCreate = 'userCreate',
   userAwait = 'userAwait',
+  userActive = 'userActive',
 
   senderCall = 'senderCall',
   storingSystemCall = 'storingSystemCall',

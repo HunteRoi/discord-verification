@@ -1,4 +1,4 @@
-import { Client, Intents, Snowflake, Constants } from 'discord.js';
+import { Client, IntentsBitField, Snowflake, Partials } from 'discord.js';
 import EventEmitter from 'events';
 
 import { CodeGeneratorService } from './services';
@@ -30,13 +30,13 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       },
       maxNbCodeCalledBeforeResend: 3,
       pendingMessage: (user: TUser) =>
-        `The verification code has just been sent.`,
+        `The verification code has just been sent to ${user.data}.`,
       alreadyPendingMessage: (user: TUser) =>
-        `You already have a verification code pending.`,
+        `You already have a verification code pending! It was sent to ${user.data}.`,
       alreadyActiveMessage: (user: TUser) =>
-        'Your email has already been verified!',
-      validCodeMessage: (user: TUser) =>
-        `Hey, your code is valid! Welcome ${user.username}!`,
+        `You are already verified with the email ${user.data}!`,
+      validCodeMessage: (user: TUser, validCode: string) =>
+        `Your code ${validCode} is valid! Welcome ${user.username}!`,
       invalidCodeMessage: (user: TUser, invalidCode: string) =>
         `Your code ${invalidCode} is invalid!`,
     }
@@ -48,23 +48,23 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     if (!senderAPI) throw 'SenderAPI is required';
     this.validateOptions(options);
 
-    const intents = new Intents(client.options.intents);
-    if (!intents.has(Intents.FLAGS.GUILDS)) {
+    const intents = new IntentsBitField(client.options.intents);
+    if (!intents.has(IntentsBitField.Flags.Guilds)) {
       throw 'GUILDS intent is required to use this package!';
     }
 
     if (options.usePrivateMessages) {
-      if (!intents.has(Intents.FLAGS.DIRECT_MESSAGES)) {
+      if (!intents.has(IntentsBitField.Flags.DirectMessages)) {
         throw 'DIRECT_MESSAGES intent is required to use this package!';
       }
       if (
-        !this.client.options.partials.includes(Constants.PartialTypes.MESSAGE)
+        !this.client.options.partials.includes(Partials.Message)
       ) {
         throw 'MESSAGE partial is required to use this package with DM!';
       }
     } else if (
       !options.useInteraction &&
-      !intents.has(Intents.FLAGS.GUILD_MESSAGES)
+      !intents.has(IntentsBitField.Flags.GuildMessages)
     ) {
       throw 'GUILD_MESSAGES intent is required to use this package!';
     }
@@ -81,34 +81,26 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
   private validateOptions(options: VerificationOptions<TUser>) {
     if (!options) throw "'options' is required";
 
-    if (!options.codeGenerationOptions) {
-      options.codeGenerationOptions = { length: 6 };
-    }
-    if (!options.codeGenerationOptions.length) {
-      options.codeGenerationOptions.length = 6;
+    if (!options.codeGenerationOptions || !options.codeGenerationOptions.length) {
+      options.codeGenerationOptions = { ...(options.codeGenerationOptions ?? {}), length: 6 };
     }
     if (!options.maxNbCodeCalledBeforeResend) {
       options.maxNbCodeCalledBeforeResend = 3;
     }
     if (!options.pendingMessage) {
-      options.pendingMessage = (user: TUser) =>
-        `The verification code has just been sent.`;
+      options.pendingMessage = (user: TUser) => `The verification code has just been sent to ${user.data}.`;
     }
     if (!options.alreadyPendingMessage) {
-      options.alreadyPendingMessage = (user: TUser) =>
-        `You already have a verification code pending.`;
+      options.alreadyPendingMessage = (user: TUser) => `You already have a verification code pending! It was sent to ${user.data}.`;
     }
     if (!options.alreadyActiveMessage) {
-      options.alreadyActiveMessage = (user: TUser) =>
-        'Your email has already been verified!';
+      options.alreadyActiveMessage = (user: TUser) => `You are already verified with the email ${user.data}!`;
     }
     if (!options.validCodeMessage) {
-      options.validCodeMessage = (user: TUser) =>
-        `Hey, your code is valid! Welcome ${user.username}!`;
+      options.validCodeMessage = (user: TUser, validCode: string) => `Your code ${validCode} is valid! Welcome ${user.username}!`;
     }
     if (!options.invalidCodeMessage) {
-      options.invalidCodeMessage = (user: TUser, invalidCode: string) =>
-        `Your code ${invalidCode} is invalid!`;
+      options.invalidCodeMessage = (user: TUser, invalidCode: string) => `Your code ${invalidCode} is invalid!`;
     }
   }
 
@@ -163,7 +155,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       this.emit(VerificationManagerEvents.userAwait, user);
       return this.options.alreadyPendingMessage(user);
     } else {
-      this.emit(VerificationManagerEvents.userAwait, user);
+      this.emit(VerificationManagerEvents.userActive, user);
       return this.options.alreadyActiveMessage(user);
     }
   }
@@ -171,21 +163,20 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
   async verifyCode(userid: string, code: string): Promise<string> {
     let isVerified = false;
 
-    let user: IUser = await this.storingSystem.read(userid);
+    let user: TUser = await this.storingSystem.read(userid);
     this.emit(VerificationManagerEvents.storingSystemCall);
 
     if (user) {
       user.nbVerifyCalled++;
 
-      isVerified =
-        user.status !== UserStatus.active && user.code === code.trim();
+      isVerified = user.status === UserStatus.pending && user.code === code.trim();
       if (isVerified) {
         user.status = UserStatus.active;
         user.activatedCode = user.code;
         user.code = null;
       }
 
-      await this.storingSystem.write(user as TUser);
+      await this.storingSystem.write(user);
       this.emit(VerificationManagerEvents.storingSystemCall);
     }
 
@@ -198,7 +189,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     );
 
     return isVerified
-      ? this.options.validCodeMessage(user as TUser)
-      : this.options.invalidCodeMessage(user as TUser, code);
+      ? this.options.validCodeMessage(user, code)
+      : this.options.invalidCodeMessage(user, code);
   }
 }

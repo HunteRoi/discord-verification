@@ -1,4 +1,4 @@
 export enum UserStatus {
   pending,
-  active,
+  active
 }
