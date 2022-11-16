@@ -2,39 +2,69 @@ import { MailDataRequired, MailService } from '@sendgrid/mail';
 
 import { ISenderAPI, SenderAPIData } from '../types';
 
-type SendGridOptions = {
+export type SendGridMailData = MailDataRequired;
+export type SendGridOptions = {
+  /**
+   * SendGrid API key.
+   *
+   * @type {string}
+   */
   apiKey: string;
-  mailData: MailDataRequired;
+
+  /**
+   * Mail data used by SendGrid for customization and stuff.
+   * See @sendgrid/mail docs for more information.
+   *
+   * @type {SendGridMailData}
+   */
+  mailData: SendGridMailData;
 };
 
+/**
+ * The SendGrid communication service. Used to send the code via email.
+ *
+ * @export
+ * @class SendGridService
+ * @implements {ISenderAPI}
+ */
 export class SendGridService implements ISenderAPI {
-  private readonly options: SendGridOptions;
-  private readonly mailService: MailService;
+  readonly #options: SendGridOptions;
+  readonly #mailService: MailService;
 
+  /**
+   * Creates an instance of SendGridService.
+   * @param {SendGridOptions} options
+   * @memberof SendGridService
+   */
   constructor(options: SendGridOptions) {
     if (!options || !options.apiKey) {
       throw `Cannot instanciate a MailService.
 			 That means you might have forgotten to add options including the apiKey.`;
     }
 
-    this.options = options;
-    this.mailService = new MailService();
-    this.mailService.setApiKey(this.options.apiKey);
+    this.#options = options;
+    this.#mailService = new MailService();
+    this.#mailService.setApiKey(this.#options.apiKey);
   }
 
-  async send({ to, name, code }: SenderAPIData) {
+  /**
+   * @inherit
+   * @param {SenderAPIData} { name, code, ...data } The required data to send information through SendGrid.
+   * @memberof SendGridService
+   */
+  async send({ name, code, ...data }: SenderAPIData) {
     const message = {
-      ...this.options.mailData,
-      to,
+      ...this.#options.mailData,
+      ...data
     } as MailDataRequired;
 
-    if (this.options.mailData.templateId) {
-      message.templateId = this.options.mailData.templateId;
+    if (this.#options.mailData.templateId) {
+      message.templateId = this.#options.mailData.templateId;
       message.dynamicTemplateData = { code, name };
     }
 
     try {
-      await this.mailService.send(message, false);
+      await this.#mailService.send(message, false);
     } catch (error) {
       console.error(error);
     }

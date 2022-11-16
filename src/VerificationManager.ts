@@ -11,14 +11,46 @@ import {
 } from './types';
 import { VerificationManagerEvents } from './VerificationManagerEvents';
 
+/**
+ * The manager handling verification (generating, sending and verifying the user's code).
+ *
+ * @export
+ * @class VerificationManager
+ * @extends {EventEmitter}
+ * @template TUser
+ */
 export class VerificationManager<TUser extends IUser> extends EventEmitter {
   private readonly options: VerificationOptions<TUser>;
   private readonly storingSystem: IStoringSystem<TUser>;
   private readonly senderAPI: ISenderAPI;
   private readonly codeGenerator: CodeGeneratorService;
 
+  /**
+   * The Discord client instance.
+   *
+   * @type {Client}
+   * @memberof VerificationManager
+   */
   public readonly client: Client;
 
+  /**
+   * Creates an instance of VerificationManager.
+   * @param {Client} client
+   * @param {IStoringSystem<TUser>} storingSystem
+   * @param {ISenderAPI} senderAPI
+   * @param {VerificationOptions<TUser>} [options={
+   *     codeGenerationOptions: {
+   *          length: 6
+   *     },
+   *     maxNbCodeCalledBeforeResend: 3,
+   *     pendingMessage: (user: TUser) => `The verification code has just been sent to ${user.data}.`,
+   *     alreadyPendingMessage: (user: TUser) => `You already have a verification code pending! It was sent to ${user.data}.`,
+   *     alreadyActiveMessage: (user: TUser) => `You are already verified with the email ${user.data}!`,
+   *     validCodeMessage: (user: TUser, validCode: string) => `Your code ${validCode} is valid! Welcome ${user.username}!`,
+   *     invalidCodeMessage: (user: TUser, invalidCode: string) => `Your code ${invalidCode} is invalid!`
+   *   }]
+   * @memberof VerificationManager
+   */
   constructor(
     client: Client,
     storingSystem: IStoringSystem<TUser>,
@@ -82,9 +114,17 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     }
   }
 
+  /**
+   * Sends the code via the communication service to the user based on the provided data.
+   * Saves the user, their code and their data into the database.
+   *
+   * @param {Snowflake} userid
+   * @param {*} data
+   * @return {Promise<string>} the result of the operation as a string, based on the result of the call to one of the manager's options' methods.
+   * @memberof VerificationManager
+   */
   async sendCode(userid: Snowflake, data: any): Promise<string> {
     let user: TUser = (await this.storingSystem.read(userid)) ?? (await this.storingSystem.readBy((user: TUser) => user.data === data));
-    this.emit(VerificationManagerEvents.storingSystemCall);
 
     if (!user) {
       const discordUser = await this.client.users.fetch(userid);
@@ -105,14 +145,12 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
 
       await this.storingSystem.write(user);
       this.emit(VerificationManagerEvents.userCreate, user);
-      this.emit(VerificationManagerEvents.storingSystemCall);
 
       await this.senderAPI.send({
-        to: data,
+        ...data,
         name: user.username,
-        code,
+        code
       });
-      this.emit(VerificationManagerEvents.senderCall);
 
       this.emit(VerificationManagerEvents.userAwait, user);
       return this.options.pendingMessage(user);
@@ -120,15 +158,13 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       user.nbCodeCalled++;
       if (user.nbCodeCalled % this.options.maxNbCodeCalledBeforeResend === 0) {
         await this.senderAPI.send({
-          to: user.data,
+          ...user.data,
           name: user.username,
           code: user.code,
         });
-        this.emit(VerificationManagerEvents.senderCall);
       }
 
       await this.storingSystem.write(user);
-      this.emit(VerificationManagerEvents.storingSystemCall);
 
       this.emit(VerificationManagerEvents.userAwait, user);
       return this.options.alreadyPendingMessage(user);
@@ -138,11 +174,19 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     }
   }
 
+  /**
+   * Verifies the provided code for the provided user.
+   * Increments the number of tries of that specific users.
+   *
+   * @param {string} userid
+   * @param {string} code
+   * @return {Promise<string>} the result of the operation as a string, based on the result of the call to one of the manager's options' methods.
+   * @memberof VerificationManager
+   */
   async verifyCode(userid: string, code: string): Promise<string> {
     let isVerified = false;
 
     let user: TUser = await this.storingSystem.read(userid);
-    this.emit(VerificationManagerEvents.storingSystemCall);
 
     if (user) {
       user.nbVerifyCalled++;
@@ -151,11 +195,11 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       if (isVerified) {
         user.status = UserStatus.active;
         user.activatedCode = user.code;
+        user.activationTimestamp = Date.now();
         user.code = null;
       }
 
       await this.storingSystem.write(user);
-      this.emit(VerificationManagerEvents.storingSystemCall);
     }
 
     this.emit(
@@ -171,3 +215,53 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       : this.options.invalidCodeMessage(user, code);
   }
 }
+
+/**
+ * Emitted when a code is generated for a user.
+ *
+ * @event VerificationManager#codeCreate
+ * @param {string} code
+ * @example
+ * manager.on(VerificationManagerEvents.codeCreate, (code) => {});
+ */
+
+/**
+ * Emitted when a code is verified for a user.
+ *
+ * @event VerificationManager#codeVerify
+ * @param {TUser} user
+ * @param {Snowflake} userid
+ * @param {string} code
+ * @param {boolean} isVerified
+ * @example
+ * manager.on(VerificationManagerEvents.codeVerify, (user, userid, code, isVerified) => {});
+ */
+
+/**
+ * Emitted when a user is created and stored.
+ *
+ * @event VerificationManager#userCreate
+ * @param {TUser} user
+ * @example
+ * manager.on(VerificationManagerEvents.userCreate, (user) => {});
+ */
+
+/**
+ * Emitted when a user is waiting for verification.
+ * Firstly emitted once the code is generated and the user is created and stored.
+ * Then emitted when the user tries to generate a new code while an existing one is pending.
+ *
+ * @event VerificationManager#userAwait
+ * @param {TUser} user
+ * @example
+ * manager.on(VerificationManagerEvents.userAwait, (user) => {});
+ */
+
+/**
+ * Emitted when a user is already verified.
+ *
+ * @event VerificationManager#userActive
+ * @param {TUser} user
+ * @example
+ * manager.on(VerificationManagerEvents.userActive, (user) => {});
+ */

@@ -1,4 +1,4 @@
-const { Client, IntentsBitField, Partials, SlashCommandBuilder } = require('discord.js');
+const { Client, IntentsBitField, SlashCommandBuilder } = require('discord.js');
 const synchronizeSlashCommands = require('discord-sync-commands');
 const { join } = require('path');
 
@@ -78,17 +78,13 @@ client.on('interactionCreate', async (interaction) => {
     let feedback = 'Unknown command!';
     switch (interaction.commandName) {
       case 'code':
-        feedback = await manager.sendCode(
-          interaction.user.id,
-          interaction.options.getString('email', true) // !! PLEASE ADD CHECKS TO VALIDATE THE FIELD
-        );
+        feedback = await manager.sendCode(interaction.user.id, {
+          to: interaction.options.getString('email', true) // !! PLEASE ADD CHECKS TO VALIDATE THE FIELD
+        });
         break;
 
       case 'verify':
-        feedback = await manager.verifyCode(
-          interaction.user.id,
-          interaction.options.getString('code', true)
-        );
+        feedback = await manager.verifyCode(interaction.user.id, interaction.options.getString('code', true));
         break;
 
       // you can also add other commands such as one to change the data field for users who mistyped it in the first place
