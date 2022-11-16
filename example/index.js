@@ -55,10 +55,11 @@ const sgMail = new SendGridService({
 
 const manager = new VerificationManager(client, db, sgMail,
   {
+    errorMessage: (user, error) => `Could not send the code to ${user.data.to} because of the following error: ${error.message}!`,
     pendingMessage: (user) =>
-      `The verification code has just been sent to ${user.data}.`,
+      `The verification code has just been sent to ${user.data.to}.`,
     alreadyPendingMessage: (user) =>
-      `You already have a verification code pending! It was sent to ${user.data}.`,
+      `You already have a verification code pending! It was sent to ${user.data.to}.`,
     alreadyActiveMessage: (user) =>
       `An account is already verified with this data!`,
     validCodeMessage: (user, validCode) =>
@@ -94,32 +95,13 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-manager.on(VerificationManagerEvents.codeCreate, (code) => {
-  console.log('A code has just been created!', code);
-});
-manager.on(
-  VerificationManagerEvents.codeVerify,
-  (user, userid, code, isVerified) =>
-    console.log(
-      `The user ${user?.username} (${userid}) has ${
-        isVerified ? 'successfully verified' : 'unsuccessfully tried to verify'
-      } the code ${code}.`
-    )
+manager.on(VerificationManagerEvents.codeCreate, (code) => console.log('A code has just been created!', code));
+manager.on(VerificationManagerEvents.codeVerify, (user, userid, code, isVerified) =>
+  console.log(`The user ${user?.username} (${userid}) has ${isVerified ? 'successfully verified' : 'unsuccessfully tried to verify'} the code ${code}.`)
 );
-manager.on(VerificationManagerEvents.userCreate, (user) =>
-  console.log(`The user ${user?.username} has just been created!`)
-);
-manager.on(VerificationManagerEvents.userAwait, (user) =>
-  console.log(`The user ${user?.username} is waiting to verify their code!`)
-);
-manager.on(VerificationManagerEvents.userActive, (user) =>
-  console.log(`The user ${user?.username} is already active!`)
-);
-manager.on(VerificationManagerEvents.senderCall, () =>
-  console.log('Sender API called!')
-);
-manager.on(VerificationManagerEvents.storingSystemCall, () =>
-  console.log('Storing system called!')
-);
+manager.on(VerificationManagerEvents.userCreate, (user) => console.log(`The user ${user?.username} has just been created!`));
+manager.on(VerificationManagerEvents.userAwait, (user) => console.log(`The user ${user?.username} is waiting to verify their code!`));
+manager.on(VerificationManagerEvents.userActive, (user) => console.log(`The user ${user?.username} is already active!`));
+manager.on(VerificationManagerEvents.error, (user, error) => console.error('An error occured', user, error));
 
 client.login('TOKEN');

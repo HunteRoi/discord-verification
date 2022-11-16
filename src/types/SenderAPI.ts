@@ -26,7 +26,8 @@ export interface ISenderAPI {
   /**
    * Sends data to a user via a specific flow.
    *
+   * @param {SenderAPIData} data
    * @memberof ISenderAPI
    */
-  send: (data: SenderAPIData) => Promise<void>;
+  send(data: SenderAPIData): Promise<void>;
 }

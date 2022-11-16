@@ -10,5 +10,7 @@ export enum VerificationManagerEvents {
 
   userCreate = 'userCreate',
   userAwait = 'userAwait',
-  userActive = 'userActive'
+  userActive = 'userActive',
+
+  error = "error"
 }

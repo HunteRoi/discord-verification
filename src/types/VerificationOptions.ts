@@ -42,37 +42,59 @@ export interface VerificationOptions<TUser extends IUser> {
   maxNbCodeCalledBeforeResend: number;
 
   /**
-   * The message sent for the first time when the user's code has just been sent.
+   * Formats the message sent when calling the communication service throws an error.
    *
+   * @param {TUser} user
+   * @param {unknown} error
+   * @return {string} the message
    * @memberof VerificationOptions
    */
-  pendingMessage: (user: TUser) => string;
+  errorMessage(user: TUser, error: unknown): string;
 
   /**
-   * The message sent once the user tries to generate a code when it's already sent to them.
+   * Formats the message sent for the first time when the user's code has just been sent.
    *
+   * @param {TUser} user
+   * @return {string} the message
    * @memberof VerificationOptions
    */
-  alreadyPendingMessage: (user: TUser) => string;
+  pendingMessage(user: TUser): string;
 
   /**
-   * The message sent once the user tries to generate a code when they are already verified.
+   * Formats the message sent once the user tries to generate a code when it's already sent to them.
    *
+   * @param {TUser} user
+   * @return {string} the message
    * @memberof VerificationOptions
    */
-  alreadyActiveMessage: (user: TUser) => string;
+  alreadyPendingMessage(user: TUser): string;
 
   /**
-   * The message sent once the code is checked and valid.
+   * Formats the message sent once the user tries to generate a code when they are already verified.
    *
+   * @param {TUser} user
+   * @return {string} the message
    * @memberof VerificationOptions
    */
-  validCodeMessage: (user: TUser, validCode: string) => string;
+  alreadyActiveMessage(user: TUser): string;
 
   /**
-   * The message sent once the code is checked and invalid.
+   * Formats the message sent once the code is checked and valid.
    *
+   * @param {TUser} user
+   * @param {string} validCode
+   * @return {string} the message
    * @memberof VerificationOptions
    */
-  invalidCodeMessage: (user: TUser, invalidCode: string) => string;
+  validCodeMessage(user: TUser, validCode: string): string;
+
+  /**
+   * Formats the message sent once the code is checked and invalid.
+   *
+   * @param {TUser} user
+   * @param {string} invalidCode
+   * @return {string} the message
+   * @memberof VerificationOptions
+   */
+  invalidCodeMessage(user: TUser, invalidCode: string): string;
 }

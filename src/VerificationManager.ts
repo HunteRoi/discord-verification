@@ -20,10 +20,10 @@ import { VerificationManagerEvents } from './VerificationManagerEvents';
  * @template TUser
  */
 export class VerificationManager<TUser extends IUser> extends EventEmitter {
-  private readonly options: VerificationOptions<TUser>;
-  private readonly storingSystem: IStoringSystem<TUser>;
-  private readonly senderAPI: ISenderAPI;
-  private readonly codeGenerator: CodeGeneratorService;
+  readonly #options: VerificationOptions<TUser>;
+  readonly #storingSystem: IStoringSystem<TUser>;
+  readonly #senderAPI: ISenderAPI;
+  readonly #codeGenerator: CodeGeneratorService;
 
   /**
    * The Discord client instance.
@@ -43,6 +43,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
    *          length: 6
    *     },
    *     maxNbCodeCalledBeforeResend: 3,
+   *     errorMessage: (user: TUser, error: unknown) => `An error occured when trying to send something to ${user?.username}!`
    *     pendingMessage: (user: TUser) => `The verification code has just been sent to ${user.data}.`,
    *     alreadyPendingMessage: (user: TUser) => `You already have a verification code pending! It was sent to ${user.data}.`,
    *     alreadyActiveMessage: (user: TUser) => `You are already verified with the email ${user.data}!`,
@@ -60,6 +61,8 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
         length: 6,
       },
       maxNbCodeCalledBeforeResend: 3,
+      errorMessage: (user: TUser, error: unknown) =>
+        `An error occured when trying to send something to ${user?.username}!`,
       pendingMessage: (user: TUser) =>
         `The verification code has just been sent to ${user.data}.`,
       alreadyPendingMessage: (user: TUser) =>
@@ -77,18 +80,18 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     if (!client) throw 'Client is required';
     if (!storingSystem) throw 'StoringSystem is required';
     if (!senderAPI) throw 'SenderAPI is required';
-    this.validateOptions(options);
+    this.#validateOptions(options);
 
     this.client = client;
-    this.options = options;
-    this.storingSystem = storingSystem;
-    this.senderAPI = senderAPI;
-    this.codeGenerator = new CodeGeneratorService(
-      this.options.codeGenerationOptions.charactersWhitelist
+    this.#options = options;
+    this.#storingSystem = storingSystem;
+    this.#senderAPI = senderAPI;
+    this.#codeGenerator = new CodeGeneratorService(
+      this.#options.codeGenerationOptions.charactersWhitelist
     );
   }
 
-  private validateOptions(options: VerificationOptions<TUser>) {
+  #validateOptions(options: VerificationOptions<TUser>) {
     if (!options) throw "'options' is required";
 
     if (!options.codeGenerationOptions || !options.codeGenerationOptions.length) {
@@ -96,6 +99,9 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     }
     if (!options.maxNbCodeCalledBeforeResend) {
       options.maxNbCodeCalledBeforeResend = 3;
+    }
+    if (!options.errorMessage) {
+      options.errorMessage = (user: TUser, error: unknown) => `An error occured when trying to send something to ${user?.username}!`;
     }
     if (!options.pendingMessage) {
       options.pendingMessage = (user: TUser) => `The verification code has just been sent to ${user.data}.`;
@@ -123,13 +129,13 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
    * @return {Promise<string>} the result of the operation as a string, based on the result of the call to one of the manager's options' methods.
    * @memberof VerificationManager
    */
-  async sendCode(userid: Snowflake, data: any): Promise<string> {
-    let user: TUser = (await this.storingSystem.read(userid)) ?? (await this.storingSystem.readBy((user: TUser) => user.data === data));
+  public async sendCode(userid: Snowflake, data: any): Promise<string> {
+    let user: TUser = (await this.#storingSystem.read(userid)) ?? (await this.#storingSystem.readBy((user: TUser) => user.data === data));
 
     if (!user) {
       const discordUser = await this.client.users.fetch(userid);
-      const code = this.codeGenerator.generateCode(
-        this.options.codeGenerationOptions.length
+      const code = this.#codeGenerator.generateCode(
+        this.#options.codeGenerationOptions.length
       );
       this.emit(VerificationManagerEvents.codeCreate, code);
 
@@ -143,34 +149,47 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
         nbVerifyCalled: 0,
       } as TUser;
 
-      await this.storingSystem.write(user);
-      this.emit(VerificationManagerEvents.userCreate, user);
-
-      await this.senderAPI.send({
-        ...data,
-        name: user.username,
-        code
-      });
-
-      this.emit(VerificationManagerEvents.userAwait, user);
-      return this.options.pendingMessage(user);
-    } else if (user && user.userid === userid && user.status === UserStatus.pending) {
-      user.nbCodeCalled++;
-      if (user.nbCodeCalled % this.options.maxNbCodeCalledBeforeResend === 0) {
-        await this.senderAPI.send({
-          ...user.data,
+      try {
+        await this.#senderAPI.send({
+          ...data,
           name: user.username,
-          code: user.code,
+          code
         });
+
+        await this.#storingSystem.write(user);
+        this.emit(VerificationManagerEvents.userCreate, user);
+
+        this.emit(VerificationManagerEvents.userAwait, user);
+        return this.#options.pendingMessage(user);
+      }
+      catch (error: unknown) {
+        this.emit(VerificationManagerEvents.error, user, error);
+        return this.#options.errorMessage(user, error);
       }
 
-      await this.storingSystem.write(user);
+    } else if (user && user.userid === userid && user.status === UserStatus.pending) {
+      user.nbCodeCalled++;
+      await this.#storingSystem.write(user);
+
+      if (user.nbCodeCalled % this.#options.maxNbCodeCalledBeforeResend === 0) {
+        try {
+          await this.#senderAPI.send({
+            ...user.data,
+            name: user.username,
+            code: user.code,
+          });
+        }
+        catch (error: unknown) {
+          this.emit(VerificationManagerEvents.error, user, error);
+          return this.#options.errorMessage(user, error);
+        }
+      }
 
       this.emit(VerificationManagerEvents.userAwait, user);
-      return this.options.alreadyPendingMessage(user);
+      return this.#options.alreadyPendingMessage(user);
     } else {
       this.emit(VerificationManagerEvents.userActive, user);
-      return this.options.alreadyActiveMessage(user);
+      return this.#options.alreadyActiveMessage(user);
     }
   }
 
@@ -183,10 +202,10 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
    * @return {Promise<string>} the result of the operation as a string, based on the result of the call to one of the manager's options' methods.
    * @memberof VerificationManager
    */
-  async verifyCode(userid: string, code: string): Promise<string> {
+  public async verifyCode(userid: string, code: string): Promise<string> {
     let isVerified = false;
 
-    let user: TUser = await this.storingSystem.read(userid);
+    let user: TUser = await this.#storingSystem.read(userid);
 
     if (user) {
       user.nbVerifyCalled++;
@@ -199,7 +218,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
         user.code = null;
       }
 
-      await this.storingSystem.write(user);
+      await this.#storingSystem.write(user);
     }
 
     this.emit(
@@ -211,8 +230,8 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     );
 
     return isVerified
-      ? this.options.validCodeMessage(user, code)
-      : this.options.invalidCodeMessage(user, code);
+      ? this.#options.validCodeMessage(user, code)
+      : this.#options.invalidCodeMessage(user, code);
   }
 }
 
@@ -264,4 +283,14 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
  * @param {TUser} user
  * @example
  * manager.on(VerificationManagerEvents.userActive, (user) => {});
+ */
+
+/**
+ * Emitted when an error occurs.
+ *
+ * @event VerificationManager#error
+ * @param {TUser} user
+ * @param {unknown} error
+ * @example
+ * manager.on(VerificationManagerEvents.error, (user, error) => {});
  */

@@ -67,6 +67,7 @@ export class SendGridService implements ISenderAPI {
       await this.#mailService.send(message, false);
     } catch (error) {
       console.error(error);
+      throw error; // forces the VerificationManager flow to stop and return an error message.
     }
   }
 }
