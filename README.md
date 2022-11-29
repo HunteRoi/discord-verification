@@ -9,9 +9,9 @@ A framework to integrate a verification system with your Discord guild built wit
 - Emits events like `codeCreate`, `userCreate`, `senderCall` and **4 more**!
 - And much more!
 
-![IMAGE](./assets/example.gif)
+![IMAGE](https://raw.githubusercontent.com/HunteRoi/discord-verification/master/assets/example.gif)
 
-See [./example/index.js](./example/index.js).
+See [./examples/index.js](https://github.com/hunteroi/discord-verification/tree/master/examples/index.js).
 
 ## Installation
 
