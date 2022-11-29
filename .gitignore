@@ -8,6 +8,6 @@ lib
 **test**
 
 # Database
-example/db.json
+examples/db.json
 
-example/example.js
+examples/example.js
