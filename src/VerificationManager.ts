@@ -1,7 +1,7 @@
 import { Client, Snowflake } from 'discord.js';
 import EventEmitter from 'events';
 
-import { CodeGeneratorService } from './services';
+import { CodeGeneratorService } from './services/CodeGeneratorService';
 import {
   VerificationOptions,
   ISenderAPI,

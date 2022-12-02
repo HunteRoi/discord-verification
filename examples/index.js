@@ -4,10 +4,10 @@ const { join } = require('path');
 
 const {
   VerificationManager,
-  VerificationManagerEvents,
-  JSONDatabaseService,
-  SendGridService,
+  VerificationManagerEvents
 } = require('../lib');
+const { JSONDatabaseService } = require('../lib/services/JSONDatabaseService');
+const { SendGridService } = require('../lib/services/SendGridService');
 
 const client = new Client({
   intents: [

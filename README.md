@@ -50,7 +50,7 @@ You are responsible of the way the services (should) act and what they receive, 
 
 <div align="center">
 
-![IMAGE](assets/HLD_schema.jpg)
+![IMAGE](https://github.com/hunteroi/discord-verification/tree/master/assets/HLD_schema.jpg)
 
 </div>
 
@@ -84,16 +84,16 @@ For more information, please look at `@sendgrid/mail` documentation and check ou
 In case you are willing to a JSON file as database, you need to comply to certain requirements:
 
 - you need to create a `db.json` file (rename `db.json.copy`)
-- your stored model must implement the [`IUser`](/src/types/IUser.ts) interface.
+- your stored model must implement the [`IUser`](https://github.com/hunteroi/discord-verification/tree/master/src/types/IUser.ts) interface.
 
 ### Writing your own services
 
 If you are willing to use your own services, you need to know a few things. First things first, the services should implement the right interface:
 
-- the "sender" service should implement [`ISenderAPI`](/src/types/SenderAPI.ts).
-- the "database" service should implement [`IStoringSystem<T extends IUser>`](/src/types/StoringSystem.ts).
+- the "sender" service should implement [`ISenderAPI`](https://github.com/hunteroi/discord-verification/tree/master/src/types/SenderAPI.ts).
+- the "database" service should implement [`IStoringSystem<T extends IUser>`](https://github.com/hunteroi/discord-verification/tree/master/src/types/StoringSystem.ts).
 
-If you need examples, take a look at [`SendGridService`](/src/services/SendGridService.ts) and [`JSONDatabaseService`](/src/services/JSONDatabaseService.ts).
+If you need examples, take a look at [`SendGridService`](https://github.com/hunteroi/discord-verification/tree/master/src/services/SendGridService.ts) and [`JSONDatabaseService`](https://github.com/hunteroi/discord-verification/tree/master/src/services/JSONDatabaseService.ts).
 
 ## Events
 
