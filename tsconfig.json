@@ -6,7 +6,7 @@
     "outDir": "./lib",
     "strict": true,
     "resolveJsonModule": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "esModuleInterop": true,
     "skipLibCheck": true
   },
@@ -17,6 +17,7 @@
     "out": "docs/api-docs",
     "exclude": ["node_modules"],
     "excludePrivate": true,
-    "hideGenerator": true
+    "hideGenerator": true,
+    "excludeExternals": true
   }
 }

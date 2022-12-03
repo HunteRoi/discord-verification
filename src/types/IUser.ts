@@ -21,18 +21,18 @@ export interface IUser {
   /**
    * The generated code to verify that user.
    *
-   * @type {string}
+   * @type {string | null}
    * @memberof IUser
    */
-  code: string;
+  code: string | null;
 
   /**
    * The used code that verified the user.
    *
-   * @type {string}
+   * @type {string | null}
    * @memberof IUser
    */
-  activatedCode?: string;
+  activatedCode?: string | null;
 
   /**
    * The timestamp marking the activation of the user.

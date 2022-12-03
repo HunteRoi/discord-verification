@@ -14,19 +14,21 @@ export interface IStoringSystem<TUser extends IUser> {
    * Reads the storing system to get the user based on its unique identifier.
    *
    * @param {Snowflake} userid
-   * @return {Promise<TUser>} the user
+   * @return {Promise<TUser| undefined | null>} the user or nothing
    * @memberof IStoringSystem
    */
-  read(userid: Snowflake): Promise<TUser>;
+  read(userid: Snowflake): Promise<TUser | undefined | null>;
 
   /**
-   * Reads the storing system to get the user based on a predicate.
+   * Reads the storing system to get the user based on filters.
    *
-   * @param {(user: TUser, index: number | string) => boolean} callback
-   * @return {Promise<TUser>} the user
+   * @param {Map<string, any>} filters
+   * @return {(Promise<TUser| undefined | null>)} the user or nothing
    * @memberof IStoringSystem
    */
-  readBy(callback: (user: TUser, index: number | string) => boolean): Promise<TUser>;
+  readBy(filters: Map<string, any>): Promise<TUser | undefined | null>;
+  readBy(callback: (user: TUser, index: number | string) => boolean): Promise<TUser | undefined | null>;
+  readBy(argument: Map<string, any> | ((user: TUser, index: number | string) => boolean)): Promise<TUser | undefined | null>;
 
   /**
    * Writes a user into the storing system.

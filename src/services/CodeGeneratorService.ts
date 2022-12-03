@@ -12,7 +12,7 @@ export class CodeGeneratorService {
    * @param {string} charactersWhitelist default = '0123456789'
    * @memberof CodeGeneratorService
    */
-  constructor(charactersWhitelist: string) {
+  constructor(charactersWhitelist?: string) {
     this.#characters = charactersWhitelist || '0123456789';
   }
 

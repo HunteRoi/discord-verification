@@ -43,18 +43,37 @@ export class JSONDatabaseService implements IStoringSystem<UserModel> {
    * @return {Promise<UserModel>} the user
    * @memberof JSONDatabaseService
    */
-  read(userid: Snowflake): Promise<UserModel> {
+  read(userid: Snowflake): Promise<UserModel | undefined | null> {
     return this.#database.find<UserModel>(this.#rootPath, (user: UserModel) => user.userid === userid);
   }
 
   /**
    * @inherit
-   * @param {((user: IUser, index: number | string) => boolean)} callback
-   * @return {Promise<UserModel>} the user
+   * @param {Map<string, any> | ((user: IUser, index: number | string) => boolean)} argument
+   * @return {Promise<UserModel>} the user or nothing
    * @memberof JSONDatabaseService
    */
-  readBy(callback: (user: IUser, index: number | string) => boolean): Promise<UserModel> {
-    return this.#database.find<UserModel>(this.#rootPath, callback);
+  readBy(argument: Map<string, any> | ((user: UserModel, index: number | string) => boolean)): Promise<UserModel | undefined | null> {
+    if (argument instanceof Map) {
+      return this.readBy(user => {
+        const isValidProperty = (prop: string): prop is keyof UserModel => prop in user;
+
+        let returnValue = true;
+        for (const [property, value] of argument) {
+          if (isValidProperty(property)) {
+            const dataFromUser = JSON.stringify(user[property]);
+            const dataFromValue = JSON.stringify(value);
+            returnValue = returnValue && dataFromUser === dataFromValue;
+            console.log(dataFromUser, dataFromValue, returnValue);
+          }
+        }
+
+        return returnValue;
+      });
+    }
+    else {
+      return this.#database.find<UserModel>(this.#rootPath, argument);
+    }
   }
 
   /**

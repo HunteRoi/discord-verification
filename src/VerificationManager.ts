@@ -130,7 +130,8 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
    * @memberof VerificationManager
    */
   public async sendCode(userid: Snowflake, data: any): Promise<string> {
-    let user: TUser = (await this.#storingSystem.read(userid)) ?? (await this.#storingSystem.readBy((user: TUser) => user.data === data));
+    let user: TUser | undefined | null = await this.#storingSystem.read(userid);
+    if (!user) user = await this.#storingSystem.readBy(new Map([['data', data]]));
 
     if (!user) {
       const discordUser = await this.client.users.fetch(userid);
@@ -205,7 +206,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
   public async verifyCode(userid: string, code: string): Promise<string> {
     let isVerified = false;
 
-    let user: TUser = await this.#storingSystem.read(userid);
+    let user: TUser | undefined | null = await this.#storingSystem.read(userid);
 
     if (user) {
       user.nbVerifyCalled++;

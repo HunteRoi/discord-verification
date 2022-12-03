@@ -81,20 +81,20 @@ export interface VerificationOptions<TUser extends IUser> {
   /**
    * Formats the message sent once the code is checked and valid.
    *
-   * @param {TUser} user
+   * @param {TUser| undefined | null} user
    * @param {string} validCode
    * @return {string} the message
    * @memberof VerificationOptions
    */
-  validCodeMessage(user: TUser, validCode: string): string;
+  validCodeMessage(user: TUser | undefined | null, validCode: string): string;
 
   /**
    * Formats the message sent once the code is checked and invalid.
    *
-   * @param {TUser} user
+   * @param {TUser| undefined | null} user
    * @param {string} invalidCode
    * @return {string} the message
    * @memberof VerificationOptions
    */
-  invalidCodeMessage(user: TUser, invalidCode: string): string;
+  invalidCodeMessage(user: TUser | undefined | null, invalidCode: string): string;
 }
