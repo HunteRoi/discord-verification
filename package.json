@@ -1,6 +1,6 @@
 {
   "name": "@hunteroi/discord-verification",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A framework to integrate a verification system with your Discord guild built with DiscordJS",
   "main": "lib/index.js",
   "scripts": {
