@@ -1,3 +1,3 @@
-export * from './types';
-export * from './VerificationManager';
-export * from './VerificationManagerEvents';
+export * from "./types";
+export * from "./VerificationManager";
+export * from "./VerificationManagerEvents";

@@ -5,13 +5,13 @@
  * @enum {number}
  */
 export enum UserStatus {
-  /**
-   * The user verification is pending.
-   */
-  pending,
+    /**
+     * The user verification is pending.
+     */
+    pending = 0,
 
-  /**
-   * The user is verified and active.
-   */
-  active
+    /**
+     * The user is verified and active.
+     */
+    active = 1,
 }
