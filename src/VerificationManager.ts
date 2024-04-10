@@ -206,7 +206,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
   public async verifyCode(userid: string, code: string): Promise<string> {
     let isVerified = false;
 
-    let user: TUser | undefined | null = await this.#storingSystem.read(userid);
+    const user: TUser | undefined | null = await this.#storingSystem.read(userid);
 
     if (user) {
       user.nbVerifyCalled++;
