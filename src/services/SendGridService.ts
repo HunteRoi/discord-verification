@@ -3,7 +3,7 @@ import { MailDataRequired, MailService } from '@sendgrid/mail';
 import { ISenderAPI, SenderAPIData } from '../types';
 
 export type SendGridMailData = MailDataRequired;
-export type SendGridOptions = {
+export interface SendGridOptions {
   /**
    * SendGrid API key.
    *
@@ -18,7 +18,7 @@ export type SendGridOptions = {
    * @type {SendGridMailData}
    */
   mailData: SendGridMailData;
-};
+}
 
 /**
  * The SendGrid communication service. Used to send the code via email.
@@ -56,7 +56,7 @@ export class SendGridService implements ISenderAPI {
     const message = {
       ...this.#options.mailData,
       ...data
-    } as MailDataRequired;
+    } as SendGridMailData;
 
     if (this.#options.mailData.templateId) {
       message.templateId = this.#options.mailData.templateId;

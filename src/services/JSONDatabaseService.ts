@@ -53,6 +53,7 @@ export class JSONDatabaseService implements IStoringSystem<UserModel> {
    * @return {Promise<UserModel>} the user or nothing
    * @memberof JSONDatabaseService
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readBy(argument: Map<string, any> | ((user: UserModel, index: number | string) => boolean)): Promise<UserModel | undefined | null> {
     if (argument instanceof Map) {
       return this.readBy(user => {

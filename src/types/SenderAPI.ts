@@ -1,4 +1,4 @@
-export type SenderAPIData = {
+export interface SenderAPIData {
   /**
    * The code to send.
    *
@@ -13,8 +13,9 @@ export type SenderAPIData = {
    */
   name: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
-};
+}
 
 /**
  * The contract of a sender service.

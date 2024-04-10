@@ -61,7 +61,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
         length: 6,
       },
       maxNbCodeCalledBeforeResend: 3,
-      errorMessage: (user: TUser, error: unknown) =>
+      errorMessage: (user: TUser) =>
         `An error occured when trying to send something to ${user?.username}!`,
       pendingMessage: (user: TUser) =>
         `The verification code has just been sent to ${user.data}.`,
@@ -71,7 +71,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
         `You are already verified with the email ${user.data}!`,
       validCodeMessage: (user: TUser, validCode: string) =>
         `Your code ${validCode} is valid! Welcome ${user.username}!`,
-      invalidCodeMessage: (user: TUser, invalidCode: string) =>
+      invalidCodeMessage: (_, invalidCode: string) =>
         `Your code ${invalidCode} is invalid!`,
     }
   ) {
@@ -101,7 +101,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       options.maxNbCodeCalledBeforeResend = 3;
     }
     if (!options.errorMessage) {
-      options.errorMessage = (user: TUser, error: unknown) => `An error occured when trying to send something to ${user?.username}!`;
+      options.errorMessage = (user: TUser) => `An error occured when trying to send something to ${user?.username}!`;
     }
     if (!options.pendingMessage) {
       options.pendingMessage = (user: TUser) => `The verification code has just been sent to ${user.data}.`;
@@ -110,13 +110,13 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
       options.alreadyPendingMessage = (user: TUser) => `You already have a verification code pending! It was sent to ${user.data}.`;
     }
     if (!options.alreadyActiveMessage) {
-      options.alreadyActiveMessage = (user: TUser) => `An account is already verified with this data!`;
+      options.alreadyActiveMessage = () => `An account is already verified with this data!`;
     }
     if (!options.validCodeMessage) {
       options.validCodeMessage = (user: TUser, validCode: string) => `Your code ${validCode} is valid! Welcome ${user.username}!`;
     }
     if (!options.invalidCodeMessage) {
-      options.invalidCodeMessage = (user: TUser, invalidCode: string) => `Your code ${invalidCode} is invalid!`;
+      options.invalidCodeMessage = (_, invalidCode: string) => `Your code ${invalidCode} is invalid!`;
     }
   }
 
@@ -129,6 +129,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
    * @return {Promise<string>} the result of the operation as a string, based on the result of the call to one of the manager's options' methods.
    * @memberof VerificationManager
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async sendCode(userid: Snowflake, data: any): Promise<string> {
     let user: TUser | undefined | null = await this.#storingSystem.read(userid);
     if (!user) user = await this.#storingSystem.readBy(new Map([['data', data]]));

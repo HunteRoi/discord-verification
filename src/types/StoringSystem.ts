@@ -26,9 +26,11 @@ export interface IStoringSystem<TUser extends IUser> {
    * @return {(Promise<TUser| undefined | null>)} the user or nothing
    * @memberof IStoringSystem
    */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   readBy(filters: Map<string, any>): Promise<TUser | undefined | null>;
   readBy(callback: (user: TUser, index: number | string) => boolean): Promise<TUser | undefined | null>;
   readBy(argument: Map<string, any> | ((user: TUser, index: number | string) => boolean)): Promise<TUser | undefined | null>;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   /**
    * Writes a user into the storing system.

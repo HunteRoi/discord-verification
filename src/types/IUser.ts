@@ -16,6 +16,7 @@ export interface IUser {
    * @type {*}
    * @memberof IUser
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
 
   /**
