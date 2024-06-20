@@ -1,4 +1,4 @@
-import type { IUser } from ".";
+import type { IUser } from "./IUser.js";
 
 /**
  * The {@link VerificationManager} options.

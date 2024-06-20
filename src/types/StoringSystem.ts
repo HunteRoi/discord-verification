@@ -1,6 +1,6 @@
 import type { Snowflake } from "discord.js";
 
-import type { IUser } from ".";
+import type { IUser } from "./IUser.js";
 
 /**
  * The contract of a storing service.

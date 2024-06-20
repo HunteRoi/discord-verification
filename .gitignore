@@ -1,13 +1,9 @@
 # Node
-node_modules
+node_modules/
 
 # Compiled files
-lib
-
-# Tests
-**test**
+lib/
+examples/index.js
 
 # Database
 examples/db.json
-
-examples/example.js

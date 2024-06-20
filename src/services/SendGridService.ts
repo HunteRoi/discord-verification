@@ -1,6 +1,6 @@
 import { type MailDataRequired, MailService } from "@sendgrid/mail";
 
-import type { ISenderAPI, SenderAPIData } from "../types";
+import type { ISenderAPI, SenderAPIData } from "../types/index.js";
 
 export type SendGridMailData = MailDataRequired;
 export interface SendGridOptions {

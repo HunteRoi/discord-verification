@@ -1,6 +1,6 @@
 import type { Snowflake } from "discord.js";
 
-import type { UserStatus } from ".";
+import type { UserStatus } from "./UserStatus.js";
 
 /**
  * Represents a user.

@@ -1,13 +1,10 @@
-const { Client, IntentsBitField, SlashCommandBuilder } = require('discord.js');
-const synchronizeSlashCommands = require('discord-sync-commands');
-const { join } = require('path');
+import { join } from 'node:path';
+import synchronizeSlashCommands from 'discord-sync-commands';
+import { Client, IntentsBitField, SlashCommandBuilder } from 'discord.js';
 
-const {
-  VerificationManager,
-  VerificationManagerEvents
-} = require('../lib');
-const { JSONDatabaseService } = require('../lib/services/JSONDatabaseService');
-const { SendGridService } = require('../lib/services/SendGridService');
+import { VerificationManager, VerificationManagerEvents } from '../lib/index.js';
+import { JSONDatabaseService } from '../lib/services/JSONDatabaseService.js';
+import { SendGridService } from '../lib/services/SendGridService.js';
 
 const client = new Client({
   intents: [
@@ -55,15 +52,19 @@ const sgMail = new SendGridService({
 
 const manager = new VerificationManager(client, db, sgMail,
   {
-    errorMessage: (user, error) => `Could not send the code to ${user.data.to} because of the following error: ${error.message}!`,
+    codeGenerationOptions: {
+      length: 6,
+    },
+    maxNbCodeCalledBeforeResend: 3,
+    errorMessage: (user, error: Error) => `Could not send the code to ${user.data.to} because of the following error: ${error.message}!`,
     pendingMessage: (user) =>
       `The verification code has just been sent to ${user.data.to}.`,
     alreadyPendingMessage: (user) =>
       `You already have a verification code pending! It was sent to ${user.data.to}.`,
     alreadyActiveMessage: (user) =>
-      `An account is already verified with this data!`,
+      "An account is already verified with this data!",
     validCodeMessage: (user, validCode) =>
-      `Your code ${validCode} is valid! Welcome ${user.username}!`,
+      `Your code ${validCode} is valid! Welcome ${user?.username}!`,
     invalidCodeMessage: (user, invalidCode) =>
       `Your code ${invalidCode} is invalid!`,
   });
@@ -73,7 +74,7 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  if (interaction.isCommand()) {
+  if (interaction.isChatInputCommand()) {
     await interaction.deferReply({ ephemeral: true });
 
     let feedback = 'Unknown command!';

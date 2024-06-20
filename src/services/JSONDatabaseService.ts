@@ -1,7 +1,7 @@
 import type { Snowflake } from "discord.js";
 import { Config, JsonDB } from "node-json-db";
 
-import type { IStoringSystem, IUser } from "../types";
+import type { IStoringSystem, IUser } from "../types/index.js";
 
 export type UserModel = IUser;
 
