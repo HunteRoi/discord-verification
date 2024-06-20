@@ -6,6 +6,10 @@ import { VerificationManager, VerificationManagerEvents } from '../lib/index.js'
 import { JSONDatabaseService } from '../lib/services/JSONDatabaseService.js';
 import { SendGridService } from '../lib/services/SendGridService.js';
 
+function anonymizeEmail(email: string) {
+  return email.slice(0, 2) + '\\*'.repeat(email.slice(3, email.indexOf('@')).length) + email.slice(email.indexOf('@'));
+}
+
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
@@ -36,10 +40,10 @@ synchronizeSlashCommands(
           .setRequired(true)
       ),
   ],
-  { guild: 'GUILD_ID' }
+  { guildId: 'GUILD_ID' }
 );
 
-const db = new JSONDatabaseService(join(__dirname, 'db.json'));
+const db = new JSONDatabaseService(join(import.meta.dirname, 'db.json'));
 db.init();
 
 const sgMail = new SendGridService({
@@ -56,11 +60,11 @@ const manager = new VerificationManager(client, db, sgMail,
       length: 6,
     },
     maxNbCodeCalledBeforeResend: 3,
-    errorMessage: (user, error: Error) => `Could not send the code to ${user.data.to} because of the following error: ${error.message}!`,
+    errorMessage: (user, error: Error) => `Could not send the code to ${anonymizeEmail(user.data.to)} because of the following error: ${error.message}!`,
     pendingMessage: (user) =>
-      `The verification code has just been sent to ${user.data.to}.`,
+      `The verification code has just been sent to ${anonymizeEmail(user.data.to)}.`,
     alreadyPendingMessage: (user) =>
-      `You already have a verification code pending! It was sent to ${user.data.to}.`,
+      `You already have a verification code pending! It was sent to ${anonymizeEmail(user.data.to)}.`,
     alreadyActiveMessage: (user) =>
       "An account is already verified with this data!",
     validCodeMessage: (user, validCode) =>
