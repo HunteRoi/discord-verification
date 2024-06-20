@@ -5,12 +5,12 @@
  * @enum {number}
  */
 export enum VerificationManagerEvents {
-  codeCreate = 'codeCreate',
-  codeVerify = 'codeVerify',
+    codeCreate = "codeCreate",
+    codeVerify = "codeVerify",
 
-  userCreate = 'userCreate',
-  userAwait = 'userAwait',
-  userActive = 'userActive',
+    userCreate = "userCreate",
+    userAwait = "userAwait",
+    userActive = "userActive",
 
-  error = "error"
+    error = "error",
 }

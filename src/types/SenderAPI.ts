@@ -1,20 +1,21 @@
-export type SenderAPIData = {
-  /**
-   * The code to send.
-   *
-   * @type {string}
-   */
-  code: string;
+export interface SenderAPIData {
+    /**
+     * The code to send.
+     *
+     * @type {string}
+     */
+    code: string;
 
-  /**
-   * The user name for message customization.
-   *
-   * @type {string}
-   */
-  name: string;
+    /**
+     * The user name for message customization.
+     *
+     * @type {string}
+     */
+    name: string;
 
-  [prop: string]: any;
-};
+    // biome-ignore lint: any data could be sent
+    [prop: string]: any;
+}
 
 /**
  * The contract of a sender service.
@@ -23,11 +24,11 @@ export type SenderAPIData = {
  * @interface ISenderAPI
  */
 export interface ISenderAPI {
-  /**
-   * Sends data to a user via a specific flow.
-   *
-   * @param {SenderAPIData} data
-   * @memberof ISenderAPI
-   */
-  send(data: SenderAPIData): Promise<void>;
+    /**
+     * Sends data to a user via a specific flow.
+     *
+     * @param {SenderAPIData} data
+     * @memberof ISenderAPI
+     */
+    send(data: SenderAPIData): Promise<void>;
 }
