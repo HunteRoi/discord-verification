@@ -22,15 +22,15 @@ export interface IUser {
     /**
      * The generated code to verify that user.
      *
-     * @type {string | null}
+     * @type {string | null | undefined}
      * @memberof IUser
      */
-    code: string | null;
+    code?: string | null;
 
     /**
      * The used code that verified the user.
      *
-     * @type {string | null}
+     * @type {string | null | undefined}
      * @memberof IUser
      */
     activatedCode?: string | null;
@@ -38,10 +38,10 @@ export interface IUser {
     /**
      * The timestamp marking the activation of the user.
      *
-     * @type {EpochTimeStamp}
+     * @type {EpochTimeStamp | null | undefined}
      * @memberof IUser
      */
-    activationTimestamp?: EpochTimeStamp;
+    activationTimestamp?: EpochTimeStamp | null;
 
     /**
      * The user name.
