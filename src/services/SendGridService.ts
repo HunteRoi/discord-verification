@@ -26,6 +26,7 @@ export interface SendGridOptions {
  * @export
  * @class SendGridService
  * @implements {ISenderAPI}
+ * @deprecated This will not be supported anymore as SendGrid free plan has been shutdown.
  */
 export class SendGridService implements ISenderAPI {
     readonly #options: SendGridOptions;

@@ -1,10 +1,10 @@
 import { join } from 'node:path';
+import { Client, IntentsBitField, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import synchronizeSlashCommands from 'discord-sync-commands';
-import { Client, IntentsBitField, SlashCommandBuilder } from 'discord.js';
 
 import { VerificationManager, VerificationManagerEvents } from '../lib/index.js';
 import { JSONDatabaseService } from '../lib/services/JSONDatabaseService.js';
-import { SendGridService } from '../lib/services/SendGridService.js';
+import { SMTP2GoService } from '../lib/services/SMTP2GoService.js';
 
 function anonymizeEmail(email: string) {
   return email.slice(0, 2) + '\\*'.repeat(email.slice(3, email.indexOf('@')).length) + email.slice(email.indexOf('@'));
@@ -46,15 +46,15 @@ synchronizeSlashCommands(
 const db = new JSONDatabaseService(join(import.meta.dirname, 'db.json'));
 db.init();
 
-const sgMail = new SendGridService({
-  apiKey: 'SENDGRID_API_KEY',
+const smtp2GoMail = new SMTP2GoService({
+  apiKey: 'SMTP2GO_API_KEY',
   mailData: {
     from: 'EMAIL',
-    templateId: 'SENDGRID_TEMPLATE_ID',
+    templateId: 'SMTP2GO_TEMPLATE_ID',
   },
 });
 
-const manager = new VerificationManager(client, db, sgMail,
+const manager = new VerificationManager(client, db, smtp2GoMail,
   {
     codeGenerationOptions: {
       length: 6,
@@ -65,21 +65,21 @@ const manager = new VerificationManager(client, db, sgMail,
       `The verification code has just been sent to ${anonymizeEmail(user.data.to)}.`,
     alreadyPendingMessage: (user) =>
       `You already have a verification code pending! It was sent to ${anonymizeEmail(user.data.to)}.`,
-    alreadyActiveMessage: (user) =>
+    alreadyActiveMessage: (_user) =>
       "An account is already verified with this data!",
     validCodeMessage: (user, validCode) =>
       `Your code ${validCode} is valid! Welcome ${user?.username}!`,
-    invalidCodeMessage: (user, invalidCode) =>
+    invalidCodeMessage: (_user, invalidCode) =>
       `Your code ${invalidCode} is invalid!`,
   });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log('Connected!');
 });
 
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand()) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     let feedback = 'Unknown command!';
     switch (interaction.commandName) {

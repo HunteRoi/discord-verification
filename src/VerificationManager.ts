@@ -1,7 +1,5 @@
 import EventEmitter from "node:events";
 import type { Client, Snowflake } from "discord.js";
-
-import { VerificationManagerEvents } from "./VerificationManagerEvents.js";
 import { CodeGeneratorService } from "./services/CodeGeneratorService.js";
 import {
     type ISenderAPI,
@@ -10,6 +8,7 @@ import {
     UserStatus,
     type VerificationOptions,
 } from "./types/index.js";
+import { VerificationManagerEvents } from "./VerificationManagerEvents.js";
 
 /**
  * The manager handling verification (generating, sending and verifying the user's code).
