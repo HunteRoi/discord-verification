@@ -38,7 +38,7 @@ export class SendGridService implements ISenderAPI {
      * @memberof SendGridService
      */
     constructor(options: SendGridOptions) {
-        if (!options || !options.apiKey) {
+        if (!options?.apiKey) {
             throw `Cannot instanciate a MailService.
 			 That means you might have forgotten to add options including the apiKey.`;
         }

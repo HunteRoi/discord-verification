@@ -5,17 +5,17 @@
   },
   "description": "A framework to integrate a verification system with your Discord guild built with DiscordJS",
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
+    "@biomejs/biome": "2.5.0",
     "@sendgrid/mail": "^8.1.6",
-    "@types/node": "^24.5.2",
+    "@types/node": "^26.0.0",
     "@types/node-json-db": "^0.9.3",
-    "@types/sqlite3": "^3.1.11",
+    "@types/sqlite3": "^5.1.0",
     "discord-sync-commands": "^0.5.2",
-    "discord.js": "^14.22.1",
-    "node-json-db": "^2.3.1",
-    "smtp2go-nodejs": "^0.3.5",
-    "typedoc": "^0.28.13",
-    "typescript": "^5.9.2"
+    "discord.js": "^14.26.4",
+    "node-json-db": "^2.6.0",
+    "smtp2go-nodejs": "^1.0.0",
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.3"
   },
   "directories": {
     "lib": "lib"
@@ -50,5 +50,5 @@
     "start": "yarn build && tsc ./examples/index.ts --target esnext --module nodenext --moduleResolution nodenext && node ./examples/index.js"
   },
   "type": "module",
-  "version": "1.5.2"
+  "version": "1.5.3"
 }

@@ -46,7 +46,7 @@ export class SMTP2GoService implements ISenderAPI {
      * @memberof SMTP2GoService
      */
     constructor(options: SMTP2GoOptions) {
-        if (!options || !options.apiKey) {
+        if (!options?.apiKey) {
             throw `Cannot instanciate SMTP2GoService. That means you might have forgotten to add options.`;
         }
         this.#options = options;
@@ -78,7 +78,7 @@ export class SMTP2GoService implements ISenderAPI {
         ]);
 
         try {
-            const api = SMTP2GOApi.default(this.#options.apiKey);
+            const api = SMTP2GOApi(this.#options.apiKey);
             const mailService = api
                 .mail()
                 .to(message.to)

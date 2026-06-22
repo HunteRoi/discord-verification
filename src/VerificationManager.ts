@@ -93,10 +93,7 @@ export class VerificationManager<TUser extends IUser> extends EventEmitter {
     #validateOptions(options: VerificationOptions<TUser>) {
         if (!options) throw "'options' is required";
 
-        if (
-            !options.codeGenerationOptions ||
-            !options.codeGenerationOptions.length
-        ) {
+        if (!options.codeGenerationOptions?.length) {
             options.codeGenerationOptions = {
                 ...(options.codeGenerationOptions ?? {}),
                 length: 6,
